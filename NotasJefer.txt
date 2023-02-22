@@ -1,5 +1,8 @@
 --las rutas en laravel estan en ROUTES
 
+--Solucion error 500 y llave, error al ejecutar aritisan
+https://es.stackoverflow.com/questions/283568/error-500-internal-server-error-laravel
+
 
 --asi se declaran rutas, laravel imprime en cascada, primero lo primero
 
@@ -106,3 +109,53 @@ ahora si en cara hoja de php lo que ponemos es la referencia de nuestra plantill
 @section('content')
     <h1>Bienvenido desde a index</h1>
 @endsection
+
+
+--Para conectarme a una base de datos se hace en config-database.php
+
+para colocar credenciales de la bd se las coloca en database.php pero por seguridad estos datos son asignados en el archivo 
+.env
+DB_CONNECTION es igual al valor de quede tener en el archivo .env, si esta variable no existe por defecto se pone mysql
+env('DB_CONNECTION', 'mysql')
+
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=blog
+DB_USERNAME=root
+DB_PASSWORD=12345
+
+--en laravel existe migraciones, que sirve para el versionamiento de la base de datos
+cada cambio que se hace en base de datos queda registrado en database/migrations
+
+public function up(): void//crea tabla
+{
+    // users: nombre de la tabla
+    // Blueprint: crea las columnas de la tabla
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();//integuer unsigned incremend
+        $table->string('name', 150);//varchar 150 caracteres
+        $table->string('email')->unique();//dato unico
+        $table->timestamp('email_verified_at')->nullable();//guardar fechas, al realizar el registro se anula
+        $table->string('password');
+        $table->rememberToken();//genera un token de hasta si 100 caracteres
+        $table->timestamps();//almacena fecha y hora que se registra
+    });
+}
+
+/**
+ * Reverse the migrations.
+ */
+public function down(): void//revierte los cambios, rollback
+{
+    Schema::dropIfExists('users');
+}
+
+
+
+--PARA CREAR UNA MIGRACION SE EJECUTA EL comandos
+php artisan migrate  
+el comando ejecuta el archivo migrations y ejecuyta uno a uno los archivos alojados ahi, solo la funcion up
+ademas se crea una tabla que lleva el registro de las migraciones que se ha realizado
+
