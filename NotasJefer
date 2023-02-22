@@ -1,0 +1,108 @@
+--las rutas en laravel estan en ROUTES
+
+
+--asi se declaran rutas, laravel imprime en cascada, primero lo primero
+
+Route::get('/', function () {
+    // return view('welcome');
+    return "Bienvenido";
+});
+
+Route::get('cursos', function () {
+    return "Bienvenido a cursos";
+});
+
+Route::get('cursos/{curso}', function ($curso) {
+    return "Bienvenido a cursos $curso";
+});
+
+--Crear un controlador, se encarga lo que se debe mostrar al usuario
+--los controladores estan ubicados en app/http/controllers
+un controlador se crea asi desde linea de comandos:
+php artisan make:controller HomeController
+
+Asignar un controlador a una rutas, esto se hace en web.php
+
+Route::get('/', HomeController::class);
+use App\Http\Controllers\HomeController;
+
+
+y en el controlador va esto 
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class HomeController extends Controller
+{
+    public function __invoke(){
+        return "Bienvenido desde el controlador home";
+    }
+}
+
+--Cuando es una sola ruta se utiliza el metodo __invoke
+public function __invoke(){
+    return "Bienvenido desde el controlador home";
+}
+--cuando es para varias rutas la sintaxis es asi 
+en curso controller 
+class CursoController extends Controller
+{
+    public function index(){
+        return "Bienvenido a cursos";
+    }
+
+    public function create(){
+        return "Bienvenido a crear cursos";
+    }
+
+    public function show($curso){
+        return "Bienvenido a cursos $curso ";
+    }
+}
+
+en web php
+Route::get('cursos', [CursoController::class, 'index']);
+Route::get('cursos/create', [CursoController::class, 'create']);
+Route::get('cursos/{curso}', [CursoController::class, 'show']);
+
+
+//grupo de rutas
+
+Route::controller(CursoController::class)->group(function(){
+    Route::get('cursos', 'index');
+    Route::get('cursos/create', 'create');
+    Route::get('cursos/{curso}', 'show');
+});
+
+--vistas en los controladores
+las vistas se almacenan en resorces/views
+
+
+
+para crear una plantilla y que se refleje en todas las hojas de html se pone
+en el nombre del documento .blade.php 
+
+la plantilla va en layouts y se define <aside><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title')</title>
+    <!-- css -->
+</head>
+<body>
+    @yield('content')
+</body>
+</html></aside>
+
+ahora si en cara hoja de php lo que ponemos es la referencia de nuestra plantilla
+@extends('layouts.plantilla') -> referencia plantilla
+
+@section('title', 'Home') -> nombre de nuiestra pestaña
+
+@section('content')
+    <h1>Bienvenido desde a index</h1>
+@endsection
