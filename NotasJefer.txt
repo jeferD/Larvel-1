@@ -2,6 +2,8 @@
 
 --Solucion error 500 y llave, error al ejecutar aritisan
 https://es.stackoverflow.com/questions/283568/error-500-internal-server-error-laravel
+otra solucion comando cuando no existe vendor
+composer install --ignore-platform-reqs
 
 
 --asi se declaran rutas, laravel imprime en cascada, primero lo primero
@@ -158,4 +160,10 @@ public function down(): void//revierte los cambios, rollback
 php artisan migrate  
 el comando ejecuta el archivo migrations y ejecuyta uno a uno los archivos alojados ahi, solo la funcion up
 ademas se crea una tabla que lleva el registro de las migraciones que se ha realizado
+si sale error al ejecutar el comando hay que revizar en XAMPP el php init
 
+Soy usuario de Windows y XAMPP. Lo que funciona para mí es agregar extension=php_pdo_mysql.dlltanto php.iniXAMPP php.inicomo C:\php\php.ini.
+
+Ejecute este comando en su cmd para saber dónde está su archivo de configuración
+
+php -i | find /i "Configuration File
