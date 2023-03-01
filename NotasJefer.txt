@@ -157,7 +157,42 @@ public function down(): void//revierte los cambios, rollback
 
 
 --PARA CREAR UNA MIGRACION SE EJECUTA EL comandos
+php artisan make:migration cursos
+
 php artisan migrate  
+
+REALIZAR UN ROLLBACK A UNA MIGRACION QUE SALIO MAL
+php artisan migrate:rollback
+
+
+crear una tabla de otra manera, donde desde el comando crea una tabla con las dos funciones
+que se necesita ademas crea el id y el timestamps
+php artisan make:migration create_cursos_table
+
+
+Para agregar una colunma a una tabla que ya existe, se debe refrescar todo
+y esto vuelve borra todo y crea de nuevo, esto borrara todos los registros
+NO EJECUTAR---------------------------SOLO CUANDO ESTE EN DESARROLLO
+php artisan migrate:fresh
+
+MODIFICAR TABLAS sin ser destructivo, este comando crea la estructura solo se debe agregar el campo nuevo
+que va a ir en la tabla que se referencia en el comando
+        php artisan make:migration add_avatar_to_users_table
+y luego ejecutamos migracion para correr todos los scrips
+        php artisan migrate
+
+ELIMINAR TODAS LAS TABLAS 
+    php artisan migrate:reset
+
+ubicar una tabla despues de una columna especifica
+    $table->string('avatar')->nullable()->after('email');
+
+cambiar estructura en los campos, se realiza atraves de un comando
+
+    composer require doctrine/dbal
+si sale error revisar el php.ini que este esta linea sin punto y coma 
+extension=fileinfo
+
 el comando ejecuta el archivo migrations y ejecuyta uno a uno los archivos alojados ahi, solo la funcion up
 ademas se crea una tabla que lleva el registro de las migraciones que se ha realizado
 si sale error al ejecutar el comando hay que revizar en XAMPP el php init
@@ -167,3 +202,184 @@ Soy usuario de Windows y XAMPP. Lo que funciona para mí es agregar extension=ph
 Ejecute este comando en su cmd para saber dónde está su archivo de configuración
 
 php -i | find /i "Configuration File
+
+
+
+# ------------------------------------------------------------
+ELOQUENT orm
+crud con registros utyilizando el orm de eloquent
+ORM es el manejo de objetos
+
+Para cada tabla debe existir en modelo
+
+PARA CREAR UN MODELO ES ASI, LOS MODELOS ESTAN ALAMACENADOS EN LA RUTA app/models
+    php artisan make:model Curso
+
+
+PARA REALIZAR INSERCIONES DE DATOS SIN TENER FORMULARIOS O UNA ESTRUCTURA COMO TAL,
+existe tinker, que permite hacer todo esto desde linea de comandos
+    php artisan tinker
+
+se debe crear un objeto y conectarse al modelo que se creo
+use App\Models\Curso.php;
+$curso = new Curso; // se crea un objeto de tipo curso
+$curso->name = 'Laravel';//se aggrega un valor a name 
+$curso->descripcion = 'Iniciando con laravel';//un valor a descripcion
+$curso->save();//se guarda los cambios para vizualizarlo en BD
+
+Para modificar, se declara el el mismo objeto
+$curso->descripcion = 'Iniciando con laravel - 2023';
+
+
+
+------------------------------------------------
+SEEDERS, llenar tablar con datos de pruebas, utilizando factories de laravel
+
+Esto utiliza los objeto, se agrega uno en seeders asi
+$curso2 = new Curso(); // se crea un objeto de tipo curso2
+$curso2->name = 'Vue';//se aggrega un valor a name 
+$curso2->descripcion = 'Iniciando con vue';//un valor a descripcion
+$curso2->categoria = 'Desarrollo web con vue';//un valor a descripcion
+$curso2->save();/
+
+luego se realiza la ejecucion del seed
+con el siguiente comando 
+    php artisan db:seed
+Crear un seeder
+    php artisan make:seeder CursoSeeder
+
+
+    // $curso = new Curso(); // se crea un objeto de tipo curso
+        // $curso->name = 'Laravel';//se aggrega un valor a name 
+        // $curso->descripcion = 'Iniciando con laravel';//un valor a descripcion
+        // $curso->categoria = 'Desarrollo web';//un valor a descripcion
+        // $curso->save();
+
+        // $curso2 = new Curso(); // se crea un objeto de tipo curso2
+        // $curso2->name = 'VUE';//se aggrega un valor a name 
+        // $curso2->descripcion = 'Iniciando con VUE';//un valor a descripcion
+        // $curso2->categoria = 'Desarrollo web CON VUE';//un valor a descripcion
+        // $curso2->save();
+--------------------------------------------------
+
+LOS FACTORIS ES UN MECANISMO QUE LLENA DE MANERA AUTOMATICA REGISTROS
+
+
+El comando para crear un factori es
+    php artisan make:factory CursoFactory
+estos se cream en la ruta database/factories
+por convencion y que de una vez se asigne el modelo que va estar relacionado se agrega esto
+php artisan make:factory CursoFactory --model=Curso
+
+en el factory va esto 
+public function definition(): array
+{
+    return [
+        'name' => fake()->name(),
+        'descripcion' => fake()->paragraph(), 
+        'categoria' => fake()->randomElement(['Desarrollo web', 'Diseño web']) 
+    ];
+}
+los campos que se desea llenar automatico
+
+y en el seeder para que ejecute el factory y que llene el numero de registros
+que uno quiera ruta del documento database/seeders/databaseseeders
+
+        Curso::factory(50)->create();
+        User::factory(10)->create();
+
+
+---------------------------------------------------------------------------
+Utilizacion de consultas con tinker 
+
+Primero nos conectamos a tinker
+    php artisan tinker
+De aqui nos conectamos al modelo que administra la tabla
+    use App\Models\Curso;
+Creamos un objeto que me traiga todos los elementos de esta tabla
+    $cursos = Curso::all();
+si se desea recorrer esto se podria hacer con un for 
+
+
+CONSULTA CON RESTRICCION, Solo datos que tengan desarrollo web,
+por defecto los ordena de manera asendente
+    $cursos = Curso::where('categoria','Diseño web')->get();
+ORDEN DE MANERA DESENDENTE
+    $cursos = Curso::where('categoria','Diseño web')->orderBy('id','desc')->get();
+ORDEN DE MANERA ASENDENTE
+    $cursos = Curso::where('categoria','Diseño web')->orderBy('name','asc')->get();
+PRIMER CAMPO
+    $cursos = Curso::where('categoria','Diseño web')->orderBy('name','asc')->first();
+Solo traer nombre y descripcion
+    $cursos = Curso::select('name', 'descripcion')->get();
+
+Colocar alias a las columnmas
+    $cursos = Curso::select('name as nombre', 'descripcion as desc')->get();
+LImit con take
+    $cursos = Curso::select('name as nombre', 'descripcion as desc')->take(5)->get();
+
+Buscar un id con eloquet
+    $cursos = Curso::find(3);
+Consulta mayores a
+    $cursos = Curso::where('id','>', 45)->get();
+Like con elowuen
+    $cursos = Curso::where('id','like', '%volupta%')->get();
+
+------------------------------------------------------------------------------
+Mutadores, transformar el texto antes de guardar, ejemplo de mayusculas y guardar el registro en minusculas
+
+esta funcion va en App\models\user.php que es el adminsitrador de la tabla usur
+protected function name(): Attribute {
+    return new Attribute(
+        get: function($value){
+            return ucwords($value);
+        },
+        set: function($value) {
+            return strtolower($value);
+        }
+    );
+} 
+
+
+cuando consultemos con get el nombre lo trae con la primera lectra en mayuscula
+get: function($value){
+    return ucwords($value);
+},
+
+
+FUNCION FLECHA EN PHP
+get: fn($value) => ucwords($value),
+set: fn($value) => strtolower($value)
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
