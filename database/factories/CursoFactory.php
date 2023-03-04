@@ -18,8 +18,10 @@ class CursoFactory extends Factory
      */
     public function definition(): array
     {
+        $name = $this->faker->sentence();
         return [
-            'name' => fake()->name(),
+            'name' => $name,
+            'slug' => Str::slug($name,'-'),
             'descripcion' => fake()->paragraph(), 
             'categoria' => fake()->randomElement(['Desarrollo web', 'Diseño web']) 
         ];
